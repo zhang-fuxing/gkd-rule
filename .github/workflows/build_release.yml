@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      changed: ${{ steps.changes.outputs.changed }}
     steps:
       - uses: actions/checkout@v7
 
@@ -25,18 +26,32 @@ jobs:
           version=$(node -e "import('@gkd-kit/tools').then((m) => m.stdoutGkdVersion());")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
+      # 构建后确认 dist 真的产生了变化
+      # 内容没变化时 updateDist 会输出 No changes, 此时没有新版本可发布
+      # 明确跳过而不是靠 continue-on-error 掩盖 "nothing to commit" 的失败
+      - name: Check dist changes
+        id: changes
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- dist)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=无变更::dist 与仓库内容一致 (v${{ steps.version.outputs.version }}), 没有新版本可发布, 已跳过提交、推送与 Release"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "检测到 dist 变更:"
+            git status --short -- dist
+          fi
+
       - name: Git commit
-        id: commit
+        if: ${{ steps.changes.outputs.changed == 'true' }}
         run: |
           git config --local user.email github-actions[bot]@users.noreply.github.com
           git config --local user.name github-actions[bot]
-          git status
-          git add .
-          git commit -a -m "chore: v${{steps.version.outputs.version}}"
-        continue-on-error: true
+          git add dist
+          git commit -m "chore: v${{ steps.version.outputs.version }}"
 
       - name: Git push
-        if: ${{ steps.commit.outcome == 'success' }}
+        if: ${{ steps.changes.outputs.changed == 'true' }}
         uses: ad-m/github-push-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +59,7 @@ jobs:
           tags: true
 
       - name: Create Release
-        if: ${{ steps.commit.outcome == 'success' }}
+        if: ${{ steps.changes.outputs.changed == 'true' }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
