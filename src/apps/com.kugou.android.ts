@@ -12,15 +12,18 @@ export default defineGkdApp({
       key: 0,
       name: '开屏广告',
       matchTime: 10000,
-      // 一次点不掉时允许重试一次: 先命中容器节点(如 GdtCountDownView)时点击无效
-      actionMaximum: 2,
+      // 2026-11-09: 3 次预算 —— 日志显示两条规则常在 110ms 内先后命中,
+      // 说明第一次点击被广告热区拦截/点击无效, 需要留出后续尝试的机会
+      actionMaximum: 3,
       resetMatch: 'app',
       actionMaximumKey: 0,
       priorityTime: 10000,
       rules: [
         {
           key: 0,
-          matches: '[desc="跳过"||desc="GdtCountDownView"]',
+          // 只认明确的按钮文案, 不再把 GdtCountDownView 混进来:
+          // 那是倒计时容器, 体积大, clickCenter 取中心很容易落到广告本体上(导致跳转)
+          matches: '[desc="跳过"][visibleToUser=true][height<300]',
           snapshotUrls: [
             'https://i.gkd.li/i/12775410',
             'https://i.gkd.li/i/13426030',
@@ -29,6 +32,7 @@ export default defineGkdApp({
         },
         {
           key: 1,
+          // 固定坐标规则, 依赖特定布局, 换机型/换创意即失效, 仅作兜底保留
           position: {
             left: 'width * 0.6858',
             top: 'width * 0.3906',
@@ -40,11 +44,20 @@ export default defineGkdApp({
         },
         {
           // 2026-11-09 补充: 京东 11.11 这类开屏的跳过按钮只有 text, 没有 desc
+          // clickNode 走无障碍节点点击, 不会被覆盖在上层的广告热区截获(clickCenter 会)
           // 例外: 播放器/歌词页也有 "跳过" 字样, 靠高度与可见性约束排除
           key: 2,
           name: '跳过按钮(text)',
+          action: 'clickNode',
           matches:
             '[text*="跳过"][text.length<10][visibleToUser=true][height<300][text!*="片头"][text!*="前面"]',
+        },
+        {
+          // 广点通倒计时容器: 用节点点击代替中心点击, 避免点到广告本体
+          key: 3,
+          name: '广点通倒计时(clickNode)',
+          action: 'clickNode',
+          matches: '[desc="GdtCountDownView"][visibleToUser=true][height<300]',
         },
       ],
     },
