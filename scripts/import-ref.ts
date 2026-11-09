@@ -213,7 +213,11 @@ const now = new Date().toISOString().slice(0, 10);
 let imported = 0;
 let overwritten = 0;
 let excludedCount = 0;
+let manualKept = 0;
 const problems: string[] = [];
+
+/** 手工维护标记: 文件头部含此串时, --all 不会覆盖它 */
+const MANUAL_MARK = '@manual';
 
 /** 把解析好的应用写成本项目的规则文件 */
 function writeApp(parsed: ParsedApp, opts: { force: boolean; label?: string }) {
@@ -224,6 +228,17 @@ function writeApp(parsed: ParsedApp, opts: { force: boolean; label?: string }) {
       `${opts.label ?? parsed.id} (${parsed.name}): ${parsed.id}.ts 已存在, 加 --force 覆盖`,
     );
     return;
+  }
+  // --all 会传 force, 但带 @manual 标记的文件是手工维护的, 默认跳过
+  if (existed && opts.force) {
+    const old = fs.readFileSync(outFile, 'utf-8');
+    if (old.includes(MANUAL_MARK)) {
+      manualKept += 1;
+      console.log(
+        `[SKIP] ${parsed.id} (${parsed.name}): 本地手工维护 (${MANUAL_MARK}), 未覆盖`,
+      );
+      return;
+    }
   }
 
   const content = `// 来源: Lin-arm/GKD_subscription src/apps/${parsed.id}.ts
@@ -316,5 +331,5 @@ if (problems.length > 0) {
   for (const p of problems) console.log(`  - ${p}`);
 }
 console.log(
-  `\n完成: 新增 ${imported} 个, 覆盖 ${overwritten} 个, 排除 ${excludedCount} 个, 跳过/失败 ${problems.length} 个`,
+  `\n完成: 新增 ${imported} 个, 覆盖 ${overwritten} 个, 手工保留 ${manualKept} 个, 排除 ${excludedCount} 个, 跳过/失败 ${problems.length} 个`,
 );

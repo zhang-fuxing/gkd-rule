@@ -37,7 +37,7 @@ pnpm tsx scripts/import-ref.ts --all
 pnpm tsx scripts/import-ref.ts com.taobao.taobao tv.danmaku.bili
 ```
 
-执行完固定跑 `pnpm check` + `pnpm build`，然后提交 `src/` 与 `dist/`。
+执行完固定跑 `pnpm format` → `pnpm check` → `pnpm build`。**`pnpm format` 不能省**：脚本写出的是未格式化源码，不格式化会让 600+ 个文件出现纯格式差异，把 diff 搅乱。
 
 ### 切换或新增规则类别
 
@@ -89,7 +89,7 @@ git add -A && git commit -m "feat: xxx" && git push
 
 ## 禁止事项
 
-- 不要手工编辑 `src/apps/*.ts`：下次 `--all` 会覆盖，改动会静默丢失。要定制就改脚本或改上游摘取逻辑。
+- 不要手工编辑带 `@manual` 标记以外的 `src/apps/*.ts`：下次 `--all` 会覆盖，改动会静默丢失。确实需要定制时，在文件头加 `// @manual 原因` 标记，`--all` 会自动跳过该文件（输出里显示 `[SKIP] ... 本地手工维护`）。当前手工维护的文件：`com.kugou.android`。
 - 不要给本仓库添加 MIT 等开源许可证：规则版权属于上游，本仓库无权授权。
 - 不要把 `RAW` 订阅链接之外的内容当作可再分发物：README「规则来源与许可」一节是约束，不是装饰。
 - 不要在没有 `dist` 更新的情况下声称发布完成：设备端读的是 `dist/gkd.json5`。

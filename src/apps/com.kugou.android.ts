@@ -1,6 +1,7 @@
 // 来源: Lin-arm/GKD_subscription src/apps/com.kugou.android.ts
 // 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
-// 重新导入: pnpm tsx scripts/import-ref.ts --force com.kugou.android
+// @manual 手工维护: 在摘取内容上补充了 text 匹配的跳过按钮与重试次数, --all 会跳过本文件
+// 放弃本地调整: 删除本文件后重跑 pnpm tsx scripts/import-ref.ts --all
 import { defineGkdApp } from '@gkd-kit/define';
 
 export default defineGkdApp({
@@ -11,7 +12,8 @@ export default defineGkdApp({
       key: 0,
       name: '开屏广告',
       matchTime: 10000,
-      actionMaximum: 1,
+      // 一次点不掉时允许重试一次: 先命中容器节点(如 GdtCountDownView)时点击无效
+      actionMaximum: 2,
       resetMatch: 'app',
       actionMaximumKey: 0,
       priorityTime: 10000,
@@ -35,6 +37,14 @@ export default defineGkdApp({
           exampleUrls:
             'https://m.gkd.li/57941037/fc4a38c9-20aa-4cfc-9a92-c20e9194418b',
           snapshotUrls: 'https://i.gkd.li/i/14609953',
+        },
+        {
+          // 2026-11-09 补充: 京东 11.11 这类开屏的跳过按钮只有 text, 没有 desc
+          // 例外: 播放器/歌词页也有 "跳过" 字样, 靠高度与可见性约束排除
+          key: 2,
+          name: '跳过按钮(text)',
+          matches:
+            '[text*="跳过"][text.length<10][visibleToUser=true][height<300][text!*="片头"][text!*="前面"]',
         },
       ],
     },

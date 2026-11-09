@@ -82,8 +82,8 @@ git clone --depth 1 https://github.com/Lin-arm/GKD_subscription.git ../_ref/GKD_
 ```bash
 pnpm tsx scripts/import-ref.ts --all
 pnpm tsx scripts/import-ref.ts --all --exclude com.smile.gifmaker,com.tencent.mm   # 排除指定应用
-pnpm tsx scripts/import-ref.ts --all --category 开屏广告                          # 只取某一类
-pnpm tsx scripts/import-ref.ts --all --category 开屏广告,全屏广告                  # 多类别用逗号分隔
+pnpm tsx scripts/import-ref.ts --all --category 开屏广告,全屏广告                  # 指定类别(默认就是这两个)
+pnpm format      # 必须跑: 脚本输出的是未格式化源码, 不格式化会产生大量无意义的格式差异
 ```
 
 **只挑单个应用**（**推荐用包名**，中文名可能存在同名多包的情况，例如「抖音」同时对应 `com.ss.android.ugc.aweme` 和 `com.ss.android.ugc.aweme.mobile`）：
@@ -97,6 +97,8 @@ pnpm tsx scripts/import-ref.ts --force 淘宝        # 覆盖已存在的文件
 脚本用 TypeScript AST 解析参考仓库的 `defineGkdApp({...})`，按 `--category`（默认 `开屏广告,全屏广告`）挑出规则组，重新生成本项目的 `src/apps/<包名>.ts`，并在文件头写入来源信息。
 
 > **注意**：生成文件是 `--category` 的并集。如果把类别改窄（例如只传 `--category 开屏广告`）再跑 `--all`，原有全屏广告规则会被清掉。改类别时一次性传全。
+
+> **手工维护**：少数应用需要在摘取内容之上做本地调整（例如酷狗音乐补了「只有 `text` 没有 `desc`」的跳过按钮，并允许重试一次）。这类文件头部带 `@manual` 标记，`--all` 会自动跳过、不覆盖，输出里打印 `[SKIP] ... 本地手工维护`。要放弃本地调整、恢复上游版本：删掉该文件后重跑 `--all`。
 
 ### 同步上游更新
 
