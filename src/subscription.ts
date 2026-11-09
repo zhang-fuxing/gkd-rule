@@ -19,7 +19,7 @@ apps.forEach((appConfig) => {
 export default defineGkdSubscription({
   // 订阅唯一 id, 填一个较大的随机数字, 不要与其它订阅重复
   id: 1937284650,
-  name: '开屏广告规则',
+  name: '广告跳过规则',
   version: 0,
   author: 'zhangfx',
   checkUpdateUrl: './gkd.version.json5',
