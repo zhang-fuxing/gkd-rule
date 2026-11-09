@@ -96,5 +96,6 @@ git add -A && git commit -m "feat: xxx" && git push
 
 ## 参考资源
 
+- `docs/how-to-add-rule.md` — 抓快照 → 上传拿 `i.gkd.li` 链接 → 审查工具定位节点 → 写规则 → 加进项目 → 发布的完整人工流程（含排错对照表）。用户报"某广告没跳过"时，先引导他按这份文档抓快照。
 - `references/gkd-field-notes.md` — GKD 规则字段语义、选择器语法要点、快照抓取与调试流程。
 - 上游 API 文档 <https://gkd.li/api>，选择器语法 <https://gkd.li/guide/selector>，节点属性 <https://gkd.li/guide/node>。
