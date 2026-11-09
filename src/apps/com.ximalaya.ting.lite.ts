@@ -1,0 +1,56 @@
+// 来源: Lin-arm/GKD_subscription src/apps/com.ximalaya.ting.lite.ts
+// 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
+// 重新导入: pnpm tsx scripts/import-ref.ts --force com.ximalaya.ting.lite
+import { defineGkdApp } from '@gkd-kit/define';
+
+export default defineGkdApp({
+  id: 'com.ximalaya.ting.lite',
+  name: '喜马拉雅极速版',
+  groups: [
+    {
+      key: 1,
+      name: '全屏广告-弹窗广告',
+      rules: [
+        {
+          key: 0,
+          activityIds:
+            'com.bytedance.sdk.openadsdk.stub.activity.Stub_Standard_Portrait_Activity',
+          matches:
+            '@Image < View + View + View > View > View > TextView[text="广告"]',
+          snapshotUrls: 'https://i.gkd.li/i/13218286',
+        },
+      ],
+    },
+    {
+      key: 2,
+      name: '全屏广告-小说推荐弹窗',
+      fastQuery: true,
+      matchTime: 10000,
+      actionMaximum: 1,
+      resetMatch: 'app',
+      rules: [
+        {
+          activityIds: 'com.ximalaya.ting.android.host.activity.MainActivity',
+          matches: '[vid="main_iv_novel_back"]',
+          snapshotUrls: 'https://i.gkd.li/i/13229127',
+        },
+      ],
+    },
+    {
+      key: 3,
+      name: '全屏广告-支付宝提现弹窗广告',
+      desc: '点击关闭',
+      fastQuery: true,
+      matchTime: 10000,
+      actionMaximum: 1,
+      resetMatch: 'app',
+      rules: [
+        {
+          activityIds: 'com.ximalaya.ting.android.host.activity.MainActivity',
+          matches: '[vid="main_login_guide_close"]',
+          snapshotUrls: 'https://i.gkd.li/i/13256447',
+        },
+      ],
+    },
+  ],
+});

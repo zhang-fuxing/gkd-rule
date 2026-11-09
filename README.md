@@ -1,166 +1,160 @@
-# subscription-template
+# 广告跳过规则
 
-GKD 订阅模板, 此仓库方便您直接构建自己订阅, 点击右上角 [Use this template](https://github.com/new?template_name=subscription-template&template_owner=gkd-kit) 即可使用
+个人自用的 [GKD](https://gkd.li) 订阅，跳过手机 App 的**开屏广告**和**全屏广告**。
 
-## 配置环境
+- 订阅 id：`1937284650`（唯一，不会与其他订阅冲突）
+- 规则类别：`开屏广告`（180 组）、`全屏广告`（647 组），两类均默认开启
+- 规模：638 个应用、827 个规则组
+- 构建产物：`dist/gkd.json5`，约 530 KB
+- 不包含：更新提示、评价提示、权限提示、局部广告、分段广告、青少年模式等其它类别
+- 开发方式：**AI 辅助开发**，范围与边界见「[AI 参与开发](#ai-参与开发)」
 
-请安装最新版 nodejs 和 pnpm 运行, 以及使用 vscode 打开项目
+## 订阅地址
 
-> [!IMPORTANT]
-> 选择器需要使用 nodejs@22 的 WasmGc 来校验 Java/Kotlin 正则表达式, 确保使用 nodejs>=22
+| 源                       | 地址                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| GitHub raw               | `https://raw.githubusercontent.com/zhang-fuxing/gkd-rule/main/dist/gkd.json5` |
+| jsDelivr（国内相对可用） | `https://cdn.jsdelivr.net/gh/zhang-fuxing/gkd-rule@main/dist/gkd.json5`       |
 
-- nodejs>=**22** <https://nodejs.org/en/download>
-- pnpm>=9 <https://pnpm.io/zh/installation>
-- vscode <https://code.visualstudio.com>
+在 GKD 的「订阅」页面点右下角 `+`，粘贴上面的地址即可导入。
 
-安装好后使用模板, 假设您刚刚使用 `Use this template` 创建的仓库是 `https://github.com/username/subscription`
+> `raw.githubusercontent.com` 在大陆经常无法访问；jsDelivr 有缓存，更新可能滞后几小时。
 
-接下来下载并初始化环境
+## 多设备同步
 
-```shell
-git clone https://github.com/username/subscription
-cd subscription
-pnpm install
+导入一次之后，在 GKD 订阅页面**下拉即可检测更新**，所有设备都会拿到同一份规则。
+
+同步链路是这样闭合的：
+
+```
+本地改 src/ → git push → GitHub Actions 校验+格式化+重新构建 dist → 提交回仓库
+                                                                    ↓
+                                                        各设备 GKD 下拉检测更新
 ```
 
-如果因为网络问题安装失败, 将上面的 `pnpm install` 换成下面命令使用 阿里镜像源 重新安装即可
+**前置条件（只需设置一次）**：仓库 `Settings → Actions → General → Workflow permissions` 选择 **Read and write permissions**。否则工作流无法把构建产物提交回仓库，`dist` 就不会更新。
 
-```sh
-pnpm install --registry=https://registry.npmmirror.com
-```
+## 验证与排错
 
-![image](https://e.gkd.li/33bb6379-2fae-4139-abc3-6250a287ad84)
-
-至此环境已在 `subscription` 目录下初始化完毕, 使用 vscode 打开目录即可开始开发
-
-接下来下面所有的示例链接都基于 `username/subscription`, 请自行替换后打开
-
-`pnpm install` 用于安装依赖, 如果您的 [./package.json](./package.json) 发生变化, 则需要再次运行 `pnpm install`
-
----
-
-如果您无法初始化 nodejs 环境, 那可以直接使用 github 网页编辑文件后在线提交, 点击下面链接即可在线编辑
-
-<https://github.com/username/subscription/edit/main/src/subscription.ts>
-
-![image](https://e.gkd.li/bb539a50-cbdb-4fec-8a93-4a9c5d067de0)
+- **看规则有没有生效**：GKD 首页的「触发记录」会列出每次点击来自哪条规则、点了什么节点。刷新后仍无记录，说明规则没匹配上。
+- **点错了（误触）**：先在「规则类别」里关掉对应类别（例如只关「全屏广告」），确认问题消失后，再把具体那个 App 的规则组单独禁用。误触的根因通常是规则选择器过于宽泛，需要补约束。
+- **某个 App 没跳过**：说明它的广告按钮没有文字特征，全局规则够不着。这种情况下截图没用（看不到 `vid` 和 `activityId`），需要在广告出现时用 GKD 悬浮窗抓一次快照，拿到 `https://i.gkd.li/i/xxxxx` 链接后才能写准规则。
 
 ## 目录结构
 
-- 订阅详情 [./src/subscription.ts](./src/subscription.ts)
-- 全局规则 [./src/globalGroups.ts](./src/globalGroups.ts)
-- 规则分类 [./src/categories.ts](./src/categories.ts)
-- 应用规则 [./src/apps](./src/apps/)
-
-在 vscode 内使用鼠标悬浮在任意字段上即可查看注释说明, 也可在 <https://gkd.li/api> 搜索查看
-
-![image](https://e.gkd.li/3b3c8b14-f7f4-46ee-90dc-b69b9233f993)
-
-现在您可编辑 [./src](./src/) 下的文件来自定义您的订阅, 构建后的订阅文件处于 [./dist](./dist/) 目录下
-
-另外您必须修改 订阅详情 [./src/subscription.ts](./src/subscription.ts) 下的 id 字段, 否则可能会和其它订阅冲突, 填一个较大的随机数字即可
-
-可以在 github 查找下方代码块 ([快捷链接](https://github.com/search?q=export+default+defineGkdSubscription%28%7B+++id%3A+&type=code)), 查看您的订阅id是否跟已有项目重复
-
-```ts
-export default defineGkdSubscription({
-  id:
+```
+src/
+  subscription.ts        订阅入口（id / 名称 / 作者 / 分类 / 全局规则）
+  categories.ts          规则类别：开屏广告、全屏广告
+  globalGroups.ts        全局开屏规则（含字节 SDK 无文字按钮的处理）
+  globalDefaultApps.ts   全局规则黑白名单数据
+  apps/<包名>.ts         各应用的规则（开屏广告 + 全屏广告）
+scripts/
+  build.ts               构建 dist
+  check.ts               类型与规则校验
+  import-ref.ts          从参考仓库按类别摘取规则组
+dist/
+  gkd.json5              构建产物，GKD 实际读取的文件
+  gkd.version.json5      版本检查文件
 ```
 
-## 格式修复
+## 维护
 
-我们使用 [prettier](https://github.com/prettier/prettier) 来格式化代码 和 [eslint](https://github.com/eslint/eslint) 来检测并修复代码错误
+环境要求：Node.js >= 22、pnpm >= 9。
 
-同时使用 [simple-git-hooks](https://github.com/toplenboren/simple-git-hooks) 在您提交代码时运行格式化和代码检测修复脚本
-
-当您的代码存在错误时, 它会阻止您提交代码并输出具体错误以供您手动修复后再次提交
-
-当提交代码到仓库时, 我们也需要使用 github actions 来帮助自动格式化并修复代码, 因此您需要开启仓库的此项权限
-
-打开 <https://github.com/username/subscription/settings/actions>
-
-然后找到 Workflow permissions 点击 Read and write permissions 然后点击下方的 Save 即可
-
-![image](https://e.gkd.li/89dd8c22-f3f0-4331-a3d1-03d466dcc3d6)
-
-## 构建订阅
-
-我们需要将 [./src](./src/) 分散的文件合并为一个 gkd.json5 的最终订阅文件并输出到 [./dist](./dist/) 目录下
-
-推荐使用 github actions 进行构建, 在 [./.github/workflows](./.github/workflows) 下有 3 个工作流
-
-我们使用其中的 `build_release.yml` 构建并发布
-
-打开 <https://github.com/username/subscription/actions/workflows/build_release.yml>
-
-然后点击右侧的 `Run workflow` 即可运行并发布
-
-![image](https://e.gkd.li/ab202786-d56d-4dba-a5ee-03190aafb6e6)
-
-构建后订阅将输出到 dist 目录下, gkd.json 的文件订阅地址如下, 复制后到 GKD 添加即可
-
-```txt
-https://raw.githubusercontent.com/username/subscription/main/dist/gkd.json5
+```bash
+pnpm install       # 安装依赖
+pnpm check         # 类型检查 + 规则校验（选择器语法也会校验）
+pnpm build         # 构建到 dist/；规则有变化时版本号自动 +1，无变化输出 No changes
+pnpm format        # prettier 格式化
 ```
 
-## 镜像加速
+### 规则从哪来 / 怎么加
 
-raw.githubusercontent.com 在大陆的访问常常无法访问
+规则全部来自参考仓库 [Lin-arm/GKD_subscription](https://github.com/Lin-arm/GKD_subscription)，首次需要浅克隆到项目同级目录：
 
-您可以换成 <https://fastly.jsdelivr.net/gh/username/subscription@main/dist/gkd.json5> 加速访问
-
-如果无法访问 raw.githubusercontent.com 和 fastly.jsdelivr.net
-
-请自行解决网络问题
-
-## 自定义配置文件
-
-注意: **大多数情况下, 你不需要自定义, 使用默认配置时, 下面此节教程无需了解**
-
-你可以在 [./package.json](./package.json) 下添加 gkd 属性配置自定义构建选项
-
-```json
-{
-  "gkd": {
-    "outDir": "dist",
-    "file": "gkd.json5",
-    "versionFile": "gkd.version.json5",
-    "changelog": "CHANGELOG.md",
-    "README.md": "README.md"
-  }
-}
+```bash
+git clone --depth 1 https://github.com/Lin-arm/GKD_subscription.git ../_ref/GKD_subscription
 ```
 
-这个 gkd 属性的类型如下
+**全量同步**（把上游所有带目标类别的应用一次性抽过来，会覆盖已生成的文件）：
 
-```ts
-/**
- * @default package.json.gkd
- */
-type GkdConfig = {
-  /**
-   * @default 'dist'
-   */
-  outDir?: string;
-  /**
-   * @default 'gkd.json5'
-   */
-  file?: string;
-  /**
-   * @default 'gkd.version.json5'
-   */
-  versionFile?: string;
-  /**
-   * @default 'CHANGELOG.md'
-   */
-  changelog?: string;
-  /**
-   * @default 'README.md'
-   */
-  readme?: string;
-};
+```bash
+pnpm tsx scripts/import-ref.ts --all
+pnpm tsx scripts/import-ref.ts --all --exclude com.smile.gifmaker,com.tencent.mm   # 排除指定应用
+pnpm tsx scripts/import-ref.ts --all --category 开屏广告                          # 只取某一类
+pnpm tsx scripts/import-ref.ts --all --category 开屏广告,全屏广告                  # 多类别用逗号分隔
 ```
 
-如果不想写配置文件, 也可以将这个参数直接传递给 `@gkd-kit/tools` 的 `updateDist` 函数
+**只挑单个应用**（**推荐用包名**，中文名可能存在同名多包的情况，例如「抖音」同时对应 `com.ss.android.ugc.aweme` 和 `com.ss.android.ugc.aweme.mobile`）：
 
-手动传递参数的时候, 你必须显式将路径(非文件名)参数传递给 [./.github/workflows/build_release.yml](./.github/workflows/build_release.yml) 下的 `updatePkgVersion` 和 `stdoutGkdVersion` 函数
+```bash
+pnpm tsx scripts/import-ref.ts com.taobao.taobao com.ss.android.ugc.aweme
+pnpm tsx scripts/import-ref.ts 淘宝 京东          # 也可以用中文名
+pnpm tsx scripts/import-ref.ts --force 淘宝        # 覆盖已存在的文件
+```
+
+脚本用 TypeScript AST 解析参考仓库的 `defineGkdApp({...})`，按 `--category`（默认 `开屏广告,全屏广告`）挑出规则组，重新生成本项目的 `src/apps/<包名>.ts`，并在文件头写入来源信息。
+
+> **注意**：生成文件是 `--category` 的并集。如果把类别改窄（例如只传 `--category 开屏广告`）再跑 `--all`，原有全屏广告规则会被清掉。改类别时一次性传全。
+
+### 同步上游更新
+
+```bash
+git -C ../_ref/GKD_subscription pull
+pnpm tsx scripts/import-ref.ts --all      # 全量重新抽取
+pnpm check && git push
+```
+
+参考仓库路径可用环境变量 `GKD_REF` 覆盖。
+
+### 三个容易踩的坑
+
+1. **`order: -10` 不能丢**。`src/subscription.ts` 会遍历所有 app，把名字以「开屏广告」开头的规则组统一提到最前匹配。去掉之后，开了其它规则时开屏规则可能被阻塞、点了没反应。全屏广告组保持默认 order（0），它没有冷启动时间窗口，靠 `activityIds` 保证精准。
+2. **子场景规则组必须带 `ignoreGlobalGroupMatch: true`**。全局规则组设了 `disableIfAppGroupMatch: '开屏广告'`，含义是：该应用只要有以「开屏广告」开头的规则组，全局规则就不再匹配它。而像「开屏广告-小程序开屏广告」这种只覆盖子场景的组，如果不加 `ignoreGlobalGroupMatch`，会让该 App 主场景的开屏广告失去覆盖。`import-ref.ts` 已自动处理这一点。
+3. **全屏广告误触风险高于开屏**。开屏广告只在冷启动后 10 秒内匹配，有天然的 `matchTime` 兜底；全屏广告随时可能弹出，只能依赖 `activityIds` 和精确选择器。如果遇到误触（点了不该点的按钮），在 GKD 里把「全屏广告」这个类别关掉即可，不影响开屏广告。
+
+## 规则来源与许可
+
+**使用前请先读这一节。**
+
+- 本项目的绝大多数选择器、`activityIds` 与快照注释摘取自 [Lin-arm/GKD_subscription](https://github.com/Lin-arm/GKD_subscription)，少量由本项目补充。
+- 该仓库**没有 LICENSE 文件**，并在 README 中声明「仅供学习交流使用」「禁止在国内平台传播」。按著作权法，未声明许可证即视为保留所有权利。
+- 因此本仓库**仅用于本人多设备同步**，不商用、不主动向任何平台分发。仓库公开可见的唯一目的是让手机上的 GKD 能通过 raw 链接拉取规则（私有仓库的 raw 链接需要 token，GKD 无法获取）。
+- 每个摘取生成的规则文件头部都保留了来源仓库、源文件路径与同步日期。这是《著作权法》第 24 条合理使用中「应当指明作者」的要求，**请勿删除**。
+- 本仓库**不对这些规则主张任何许可**，也不建议他人转载使用。如需在公开项目中使用，请向原作者取得授权。
+- 若原作者提出异议，会立即删除相关规则。
+
+## AI 参与开发
+
+本项目在开发过程中大量使用 AI 辅助，在此明确范围与责任边界。
+
+**AI 完成的部分**
+
+- `scripts/import-ref.ts`：基于 TypeScript AST 的规则抽取脚本
+- `src/apps/*.ts`、`src/globalGroups.ts`、`src/globalDefaultApps.ts`：从上游批量摘取生成，**不是逐条手写**
+- `README.md`、分类注册、CI 调整（在 `check_fix_push.yml` 中加入自动构建）
+- 规则数量统计、误触风险分析、类别取舍建议
+
+**人工负责的部分**
+
+- 上游规则的原始编写与快照验证，由 [Lin-arm/GKD_subscription](https://github.com/Lin-arm/GKD_subscription) 的作者与贡献者完成
+- 需求决策：需要哪些类别、误触容忍度、是否公开发布
+- **实机验证**：AI 无法访问手机，规则是否真的点中了跳过按钮，只能靠实测反馈确认
+
+**AI 不承担的部分**
+
+- AI 生成的规则可能存在误判或误点。无障碍点击作用于真实设备，风险由使用者自行判断与承担。
+- 版权归属与许可边界见上一节，AI 不改变这些约束。
+
+### 配套开发技能
+
+仓库内附带了项目级 Skill：`.workbuddy/skills/gkd-rule-dev/`，支持 Skill 的 AI 工具（如 WorkBuddy）在后续维护时可自动加载，内容包括：
+
+- 不可破坏的五条约定：`order: -10`、`ignoreGlobalGroupMatch`、类别并集语义、黑白名单、来源注释
+- 常见任务工作流：新增应用、切换类别、排查误触、提交发布
+- `references/gkd-field-notes.md`：GKD 字段语义、选择器语法要点、快照抓取与排错流程
+
+## 免责声明
+
+规则通过 Android 无障碍服务模拟点击，存在误触的可能性（尤其是依赖节点尺寸判定位置的规则）。请自行评估风险，因使用本订阅造成的任何问题由使用者自行承担。

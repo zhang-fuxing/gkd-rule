@@ -29,6 +29,10 @@ jobs:
 
       - run: pnpm run lint
 
+      # 重新构建 dist, 让各设备能通过订阅链接直接拿到最新规则
+      # 规则内容没变化时 updateDist 会输出 No changes, 不会产生空提交
+      - run: pnpm run build
+
       - name: Git commit
         id: commit
         run: |

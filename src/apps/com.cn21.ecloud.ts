@@ -1,0 +1,31 @@
+// 来源: Lin-arm/GKD_subscription src/apps/com.cn21.ecloud.ts
+// 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
+// 重新导入: pnpm tsx scripts/import-ref.ts --force com.cn21.ecloud
+import { defineGkdApp } from '@gkd-kit/define';
+
+export default defineGkdApp({
+  id: 'com.cn21.ecloud',
+  name: '天翼云盘',
+  groups: [
+    {
+      key: 1,
+      name: '全屏广告-首页弹窗广告',
+      fastQuery: true,
+      matchTime: 10000,
+      actionMaximum: 1,
+      resetMatch: 'app',
+      rules: [
+        {
+          activityIds: '.activity.MainPageActivity',
+          matches:
+            'FrameLayout > View[childCount=1] > View[childCount=1] >(1,4) View[childCount=2][desc=null] > @ImageView[clickable=true][visibleToUser=true] <<n [vid="content_frame"]',
+          snapshotUrls: [
+            'https://i.gkd.li/i/12865488',
+            'https://i.gkd.li/i/16653930',
+            'https://i.gkd.li/i/16647901', // 防止误触
+          ],
+        },
+      ],
+    },
+  ],
+});

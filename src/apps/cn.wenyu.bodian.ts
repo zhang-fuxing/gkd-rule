@@ -1,0 +1,41 @@
+// 来源: Lin-arm/GKD_subscription src/apps/cn.wenyu.bodian.ts
+// 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
+// 重新导入: pnpm tsx scripts/import-ref.ts --force cn.wenyu.bodian
+import { defineGkdApp } from '@gkd-kit/define';
+
+export default defineGkdApp({
+  id: 'cn.wenyu.bodian',
+  name: '波点音乐',
+  groups: [
+    {
+      key: 1,
+      name: '开屏广告',
+      matchTime: 10000,
+      actionMaximum: 2,
+      resetMatch: 'app',
+      priorityTime: 10000,
+      rules: [
+        {
+          fastQuery: true,
+          action: 'clickCenter',
+          matches:
+            '[text*="跳过"][text.length<10][width<500 && height<300][visibleToUser=true]',
+          exampleUrls: 'https://e.gkd.li/349c0f9e-a1d2-4e1d-bd6e-e42c3b3c01a6',
+          snapshotUrls: 'https://i.gkd.li/i/22845785',
+        },
+      ],
+    },
+    {
+      key: 2,
+      name: '全屏广告',
+      rules: [
+        {
+          activityIds: '.MainActivity',
+          matches:
+            '@TextView[width<130&&height<130][clickable=true] + * > [text="开会员享专属曲库"]',
+          snapshotUrls: 'https://i.gkd.li/i/22867851',
+        },
+      ],
+    },
+  ],
+});

@@ -1,0 +1,30 @@
+// 来源: Lin-arm/GKD_subscription src/apps/com.didi.live.spring.ts
+// 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
+// 重新导入: pnpm tsx scripts/import-ref.ts --force com.didi.live.spring
+import { defineGkdApp } from '@gkd-kit/define';
+
+export default defineGkdApp({
+  id: 'com.didi.live.spring',
+  name: '小红帽',
+  groups: [
+    {
+      key: 1,
+      name: '全屏广告-弹窗广告',
+      desc: '点击关闭',
+      fastQuery: true,
+      matchTime: 10000,
+      actionMaximum: 1,
+      resetMatch: 'app',
+      rules: [
+        {
+          activityIds:
+            'com.qennnsad.aknkaksd.presentation.ui.MainContainerActivity',
+          matches: '[vid="dialog_hall_iv_close"]',
+          exampleUrls:
+            'https://m.gkd.li/57941037/0d0a2a0a-b9de-4f30-9e25-a0e3b3c111d6',
+          snapshotUrls: 'https://i.gkd.li/i/14341955',
+        },
+      ],
+    },
+  ],
+});

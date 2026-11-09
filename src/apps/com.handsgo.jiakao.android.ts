@@ -1,0 +1,48 @@
+// 来源: Lin-arm/GKD_subscription src/apps/com.handsgo.jiakao.android.ts
+// 摘取类别: 开屏广告 / 全屏广告, 同步于 2026-11-09
+// 重新导入: pnpm tsx scripts/import-ref.ts --force com.handsgo.jiakao.android
+import { defineGkdApp } from '@gkd-kit/define';
+
+export default defineGkdApp({
+  id: 'com.handsgo.jiakao.android',
+  name: '驾考宝典',
+  groups: [
+    {
+      key: 2,
+      name: '全屏广告-弹窗广告',
+      matchTime: 10000,
+      actionMaximum: 1,
+      resetMatch: 'app',
+      rules: [
+        {
+          key: 0,
+          fastQuery: true,
+          activityIds:
+            'com.bytedance.sdk.openadsdk.stub.activity.Stub_Standard_Portrait_Activity',
+          matches:
+            '@View[clickable=true][childCount=0] < FrameLayout[desc^="webview-close"] +4 FrameLayout >3 [text="广告"]',
+          snapshotUrls: 'https://i.gkd.li/i/13476039',
+        },
+        {
+          key: 1,
+          fastQuery: true,
+          activityIds: '.main.activity.MainActivity',
+          matches: [
+            '[vid="adsdk__ids_cta_layout"][visibleToUser=true]',
+            '[vid="close"][visibleToUser=true]',
+          ],
+          snapshotUrls: 'https://i.gkd.li/i/20745398',
+        },
+        {
+          key: 2,
+          fastQuery: true,
+          activityIds: '.main.activity.MainActivity',
+          matches:
+            '@ImageView[childCount=0][text=null][desc=null][id=null][visibleToUser=true][width<90 && height<90] < FrameLayout[childCount=1][text=null][desc=null][id=null][parent.childCount>3] <n FrameLayout >(2,3) [text^="立即" || text$="详情" || text^="了解" || text="去微信看看" || text$="应用" || text="进入小程序" || text="领取优惠" || text="跳转微信"]',
+          exampleUrls: 'https://e.gkd.li/5370968e-fded-4be0-8fa4-b7997f8a861a',
+          snapshotUrls: 'https://i.gkd.li/i/20745379',
+        },
+      ],
+    },
+  ],
+});
